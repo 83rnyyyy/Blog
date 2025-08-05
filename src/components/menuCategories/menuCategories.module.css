@@ -1,0 +1,33 @@
+.categoryList{
+    margin-top: 35px;
+    margin-bottom: 60px;
+    display: flex;
+    flex-wrap: wrap;
+    gap:20px;
+}
+
+.categoryItem{
+    padding:8px 23px;
+    border-radius: 10px;
+    font-size: 14px;
+}
+
+.categoryItem.academics{
+    background-color: #57c4ff31;
+}
+.categoryItem.fashion{
+    background-color: #da85c731;
+}
+.categoryItem.food{
+    background-color: #7fb88133;
+}
+.categoryItem.random{
+    background-color: #ffb04f45;
+}
+.categoryItem.travel{
+    background-color: #5e4fff31;
+}
+
+.categoryItem.sports{
+    background-color: #5e4fff31;
+}

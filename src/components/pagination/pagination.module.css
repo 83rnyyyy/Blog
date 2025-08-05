@@ -1,0 +1,14 @@
+.container{
+    display: flex;
+    justify-content: space-between;
+}
+
+.button{
+    padding:16px;
+    width:100px;
+    border:none;
+    background-color: crimson;
+    color:white;
+    cursor:pointer;
+}
+
