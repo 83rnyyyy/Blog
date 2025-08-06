@@ -5,13 +5,26 @@ import ReactQuill from 'react-quill-new';
 import 'react-quill-new/dist/quill.bubble.css';
 import styles from "./writePage.module.css";
 
+import { useSession } from "next-auth/react"
+import {useRouter} from "next/navigation"
+import { useEffect} from "react";
 
 
 const WritePage = () => {
+    
+    const {status} = useSession();
+    const router = useRouter();
     const [open,setOpen] = useState(false);
     const [value,setValue] = useState("");
-    
-    
+    useEffect(() => {
+        if (status === "authenticated") {
+        router.push("/")
+        }
+    }, [status, router])
+
+    if (status === "loading") {
+        return <div className={styles.loading}>Loading...</div>
+    }
     return (
         <div className={styles.container}>
             <input type="text" placeholder="Title" className={styles.input}/>
