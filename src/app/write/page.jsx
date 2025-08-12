@@ -352,7 +352,7 @@ const WritePage = () => {
             {isDraftMode && (
                 <div className={styles.draftHeader}>
                     <span className={styles.draftBadge}>Draft Mode</span>
-                    <span className={styles.draftInfo}>You're editing a draft</span>
+                    
                 </div>
             )}
             

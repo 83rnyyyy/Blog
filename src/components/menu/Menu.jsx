@@ -16,7 +16,7 @@ const Menu = () => {
 
     return (
         <div className={styles.container}>
-            <h2 className={styles.subtitle}>What's Hot</h2>
+            <h2 className={styles.subtitle}>What&apos;s Hot</h2>
             <h1 className={styles.title}>Trending</h1>
             {isLoading ? (
                 <div>Loading trending posts...</div>
@@ -29,7 +29,7 @@ const Menu = () => {
             <MenuCategories/>
 
             <h2 className={styles.subtitle}>Chosen by Editor</h2>
-            <h1 className={styles.title}>Editor's Choice</h1>
+            <h1 className={styles.title}>Editor&apos;s Choice</h1>
             <MenuPost withImage={true} posts={[]} />
         </div>
     );
