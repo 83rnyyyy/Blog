@@ -6,8 +6,10 @@
 }
 
 .textArea{
+    margin-top: 50px;
     width:100%
 }
+
 
 .button, .addButton{
     width:36px;
@@ -36,6 +38,13 @@
 
 }
 
+.select{
+  margin-bottom: 50px;
+  padding: 10px 20px;
+  margin-left: 50px;
+  width: max-content;
+}
+
 .input{
     padding: 50px;
     font-size: 64px;
@@ -49,9 +58,9 @@
 }
 
 .publish{
-    position: absolute;
-    bottom:560px;
-    right:20px;
+    /* position: absolute; */
+    
+    
     padding:10px 20px;
     border:none;
     background-color: #1a8917;
@@ -60,15 +69,48 @@
 
 }
 
-/* @media screen and (max-width:1580px){
-    .container{
-        width: 1300px;
-    }
+.cancelButton {
+    background-color: #6b7280;
+    color: white;
+    border: none;
+    padding: 0.75rem 1.5rem;
+    border-radius: 0.375rem;
+    cursor: pointer;
+    font-weight: 500;
+    font-size: 1rem;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+}
+.buttonContainer {
+  position: absolute;
+  bottom: 540px;
+  left: 900px;
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+  justify-content: space-between;
+  
 }
 
-@media screen and (max-width:1280){
-    .container{
-        width: 800px;
-    }
-} */
+.deleteButton {
+  background-color: #ef4444;
+  color: white;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 0.375rem;
+  cursor: pointer;
+  font-weight: 500;
+  font-size: 1rem;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.deleteButton:hover:not(:disabled) {
+  background-color: #dc2626;
+}
+
+.deleteButton:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
 

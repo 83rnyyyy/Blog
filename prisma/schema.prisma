@@ -19,7 +19,7 @@ model User {
   Comment       Comment[]
   // Optional for WebAuthn support
   Authenticator Authenticator[]
- 
+  Draft         Draft[]
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
@@ -88,6 +88,7 @@ model Category{
   title String
   img String?
   Posts Post[]
+  Drafts Draft[]
 }
 
 model Post {
@@ -103,6 +104,25 @@ model Post {
   userEmail String
   user User @relation(fields: [userEmail], references:[email])
   comments Comment[]
+  
+}
+
+model Draft {
+  id String @id @default(cuid()) @map("_id") 
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  slug String @unique
+  title String
+  desc String
+  img String?
+  views Int @default(0)
+  catSlug String
+  cat Category @relation( fields: [catSlug], references: [slug])
+  userEmail String
+  user User @relation(fields: [userEmail], references:[email])
+  
+  
 }
 
 model Comment {

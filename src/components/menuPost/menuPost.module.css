@@ -33,6 +33,7 @@
 }
 .detail{
     font-size: 12;
+    gap:10px;
 }
 
 .category{
@@ -61,6 +62,9 @@
 
 .category.food{
     background-color: #076970;
+}
+.category.random{
+    background-color: #520770;
 }
 .items{
     margin-top: 35px;

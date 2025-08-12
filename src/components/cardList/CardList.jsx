@@ -4,34 +4,43 @@ import Pagination from "../pagination/Pagination";
 import Card from "../card/Card";
 
 
-// const getData = async (page) =>{
-//     const res = await fetch(`http://localhost:3000/api/posts?page=${page}`,{
-//         cache: "no-store",
-//     });
+const getData = async (page, cat) =>{
+    const res = await fetch(`http://localhost:3000/api/posts?page=${page}&cat=${cat || ""}`,
+        {
+        cache: "no-store",
+        }
+    );
 
-//     if(!res.ok){
-//         throw new Error("failed")
-//     }
+    if(!res.ok){
+        const errText = await res.text();
+        console.error("Fetch failed:", res.status, errText);
+        throw new Error("failed")
+    }
 
-//     return res.json()
-// }
-const CardList = async() => {
-    //const data = await getData(page);
+    return res.json()
+}
+const CardList = async({page, cat}) => {
+    const pageNum = Number(page) || 1;
+    const {posts, count} = await getData(pageNum, cat);
+    const POST_PER_PAGE = 2
+    const hasPrev = POST_PER_PAGE * (page-1)>0
+    const hasNext = POST_PER_PAGE * (page-1) + POST_PER_PAGE < count;
     return (
         <div className={styles.container}>
             <h1 className={styles.title}>Feed</h1>
             <div className={styles.post}> 
-                <Card/>
-                <Card/>
-                <Card/>
-                <Card/>
+                {posts?.map(item=>(
+                    <Card item ={item} key = {item.id}/>
+                ))}
+                
+                
 
 
             </div>
 
 
 
-        <Pagination/>
+        <Pagination page = {page} hasNext={hasNext} hasPrev={hasPrev}/>
         </div>
     )
 }

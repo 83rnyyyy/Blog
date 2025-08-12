@@ -45,3 +45,26 @@
     padding:2px 0px;
 }
 
+.detail {
+    display: flex;
+    align-items: center; 
+    flex-wrap: nowrap; /* prevents wrapping */
+    gap: 10px; /* adjust the spacing */
+}
+
+.date,
+.category,
+.title {
+    display: inline;
+    white-space: nowrap; /* Prevent line breaks */
+    
+}
+.detail h1 {
+    margin: 0; /* remove default h1 margins */
+}
+
+.category::before {
+    
+    margin: 0 3px;
+    
+}

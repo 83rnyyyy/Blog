@@ -1,10 +1,13 @@
+"use client";
 import React from "react";
 import Image from "next/image";
 import styles from "./navbar.module.css"
 import AuthLinks from "../authLinks/AuthLinks";
 import Link from "next/link"; 
 import ThemeToggle from "../themetoggle/ThemeToggle";
+import { useSession } from "next-auth/react";
 const Navbar = () => {
+    const { data: session, status } = useSession();
     return (
         <div className={styles.container2}>
             {/* <div className={styles.media}>
@@ -28,7 +31,11 @@ const Navbar = () => {
                     <ThemeToggle/>
                     <Link href="/" className={styles.link}>Homepage</Link>
                     <Link href="/" className={styles.link}>Contact</Link>
-                    <Link href="/"className={styles.link}>About</Link>
+                    {status === "authenticated" && session?.user?.email && (
+                        <Link href={`/user/${session.user.email}`} className={styles.link}>
+                            Profile
+                        </Link>
+                    )}
                     <AuthLinks/>
 
                 </div>
