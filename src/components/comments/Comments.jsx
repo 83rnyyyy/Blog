@@ -17,7 +17,7 @@ const fetcher = async (url) =>{
 }
 const Comments = ({postSlug}) => {
     const {status} = useSession();
-    const {data, mutate, isLoading} = useSWR(`http://localhost:3000/api/comments?postSlug=${postSlug}`, fetcher)
+    const {data, mutate, isLoading} = useSWR(`https://blog.vercel.app/api/comments?postSlug=${postSlug}`, fetcher)
     const [desc,setDesc] = useState("")
 
     const handSubmit = async ()=>{
