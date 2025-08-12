@@ -21,7 +21,7 @@ const Comments = ({postSlug}) => {
     const [desc,setDesc] = useState("")
 
     const handSubmit = async ()=>{
-        await fetch("/api/comments",{
+        await fetch("https://blog-8g7v.vercel.app/api/comments",{
             method:"POST",
             body: JSON.stringify({desc,postSlug})
         })
