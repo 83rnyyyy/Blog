@@ -4,7 +4,7 @@ import Image from "next/image";
 import styles from "./navbar.module.css"
 import AuthLinks from "../authLinks/AuthLinks";
 import Link from "next/link"; 
-import ThemeToggle from "../themetoggle/ThemeToggle";
+import themeToggle from "../themetoggle/ThemeToggle";
 import { useSession } from "next-auth/react";
 const Navbar = () => {
     const { data: session, status } = useSession();
@@ -28,7 +28,7 @@ const Navbar = () => {
                 </div>
                 
                 <div className={styles.links}>
-                    <ThemeToggle/>
+                    <themeToggle/>
                     <Link href="/" className={styles.link}>Homepage</Link>
                     <Link href="/" className={styles.link}>Contact</Link>
                     {status === "authenticated" && session?.user?.email && (
