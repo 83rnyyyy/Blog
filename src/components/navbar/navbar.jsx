@@ -1,10 +1,10 @@
 "use client";
 import React from "react";
-import Image from "next/image";
+
 import styles from "./navbar.module.css"
 import AuthLinks from "../authLinks/AuthLinks";
 import Link from "next/link"; 
-import ThemeToggle from "../themetoggle/ThemeToggle.jsx";
+import ThemeToggle from "../themeToggle/ThemeToggle.jsx";
 import { useSession } from "next-auth/react";
 const Navbar = () => {
     const { data: session, status } = useSession();
