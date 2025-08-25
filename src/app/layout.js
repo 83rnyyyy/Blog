@@ -13,11 +13,7 @@ export const metadata = {
   title: 'Teenage Theory',
   description: 'The best blog app!',
   icons: {
-    icon: [
-      { url: '/tt_logo.png' },
-      { url: '/tt_logo.ico', type: 'image/x-icon' }
-    ],
-    apple: '/tt_logo.png',
+    icon: '/favicon.ico',
   },
 }
 
