@@ -5,7 +5,7 @@ import Comment from "@/components/comments/Comments";
 
 
 const getData = async (slug) =>{
-    const res = await fetch(`https://blog-8g7v.vercel.app/api/posts/${slug}`,
+    const res = await fetch(`https://www.teenagetheory.com/api/posts/${slug}`,
         {
         cache: "no-store",
         }

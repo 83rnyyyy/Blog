@@ -39,7 +39,7 @@ const ProfilePage = ({ userEmail }) => {
         setDeletingPost(slug);
         
         try {
-            const response = await fetch(`https://blog-8g7v.vercel.app/api/posts/${slug}`, {
+            const response = await fetch(`https://www.teenagetheory.com/api/posts/${slug}`, {
                 method: 'DELETE',
             });
 
@@ -67,7 +67,7 @@ const ProfilePage = ({ userEmail }) => {
         
 
         try {
-            const response = await fetch(`https://blog-8g7v.vercel.app/api/drafts/${draftId}`, {
+            const response = await fetch(`https://www.teenagetheory.com//api/drafts/${draftId}`, {
                 method: 'DELETE',
             });
 
@@ -89,7 +89,7 @@ const ProfilePage = ({ userEmail }) => {
 
     const handlePublishDraft = async (draftId) => {
         try {
-            const response = await fetch(`https://blog-8g7v.vercel.app/api/drafts/${draftId}/publish`, {
+            const response = await fetch(`https://www.teenagetheory.com//api/drafts/${draftId}/publish`, {
                 method: 'POST',
             });
 
