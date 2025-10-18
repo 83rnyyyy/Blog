@@ -29,22 +29,20 @@
 .category.academics{
     background-color: #ffdbd6;
 }
-.category.fashion{
+.category.social{
     background-color: #fff2bd;
 }
-.category.food{
+.category.mentalHealth{
     background-color: #daf2ff;
 }
-.category.random{
+.category.theTeenageMindset{
     background-color: #e3ffdd;
 }
-.category.travel{
-    background-color: #f5e4ff;
+.category.findYourFocus{
+    background-color: #07ebdf;
 }
 
-.category.sports{
-    background-color: #ffd9f6;
-}
+
 
 .category:hover{
     transform: scale(1.05);

@@ -15,19 +15,17 @@
 .categoryItem.academics{
     background-color: #ffdbd6;
 }
-.categoryItem.fashion{
+.categoryItem.social{
     background-color: #fff2bd;
 }
-.categoryItem.food{
+.categoryItem.mentalHealth{
     background-color: #daf2ff;
 }
-.categoryItem.random{
+.categoryItem.theTeenageMindset{
     background-color: #e3ffdd;
 }
-.categoryItem.travel{
-    background-color: #f5e4ff;
+.categoryItem.indYourFocus{
+    background-color: #07ebdf;
 }
 
-.categoryItem.sports{
-    background-color: #ffd9f6;
-}
+
