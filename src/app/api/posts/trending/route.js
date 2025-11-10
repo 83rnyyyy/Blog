@@ -5,9 +5,9 @@ export const GET = async () => {
     try {
         const trendingPosts = await prisma.post.findMany({
             orderBy: {
-                views: 'desc' // Most viewed first
+                views: 'desc' 
             },
-            take: 5, // Only get top 5
+            take: 5, 
             include: {
                 user: true,
                 cat: true

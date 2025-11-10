@@ -12,10 +12,7 @@ const Footer = () => {
           <h1 className={styles.logoText}>TeenageTheory</h1>
         </div>
         <p className={styles.desc}>
-          Lorem, ipsum dolor sit amet consectetur adipisicing elit. Enim
-          necessitatibus similique aspernatur obcaecati veritatis. Aperiam cum
-          porro sequi, totam minima consequuntur, aspernatur deleniti vero
-          repellendus dorales.
+          A blog hub where teens can write, read, and connect through real experiences and fresh perspectives.
         </p>
         <div className={styles.icons}>
           <Image src="/facebook.png" alt="" width={18} height={18} />

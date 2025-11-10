@@ -369,12 +369,12 @@ const WritePage = () => {
                 value={catSlug}
                 onChange={(e) => setCatSlug(e.target.value)}
             >
-                <option value="academics">academics</option>
-                <option value="fashion">fashion</option>
-                <option value="food">food</option>
-                <option value="sports">sports</option>
-                <option value="travel">travel</option>
-                <option value="random">random</option>
+                <option value="academics">Academics</option>
+                <option value="social">Social</option>
+                <option value="theTeenageMindset">The Teenage Mindset</option>
+                <option value="mentalHealth">Mental Health</option>
+                <option value="findYourFocus">Find Your Focus</option>
+                
             </select>
             
             <div className={styles.editor}>
