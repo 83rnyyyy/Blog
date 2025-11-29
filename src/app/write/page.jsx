@@ -254,6 +254,8 @@ const WritePage = () => {
         setIsSubmitting(true);
 
         try {
+            await saveDraft();
+
             // If we're in draft mode, publish the draft
             if (isDraftMode && currentDraftId) {
                 const response = await fetch(`/api/drafts/${currentDraftId}/publish`, {
