@@ -5,13 +5,14 @@ import ReactQuill from 'react-quill-new';
 import 'react-quill-new/dist/quill.bubble.css';
 import styles from "./writePage.module.css";
 import { getStorage, ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
-import { useSession } from "next-auth/react"
-import { useRouter, useSearchParams } from "next/navigation"
-import { app } from "@/utils/firebase"
+import { useSession } from "next-auth/react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { app } from "@/utils/firebase";
 import useSWR from 'swr';
 
 const storage = getStorage(app);
 const fetcher = (url) => fetch(url).then(res => res.json());
+
 const ADMIN_MODE = true; // toggle this to enable/disable admin-only lock
 
 const ADMIN_EMAILS = [
@@ -19,9 +20,9 @@ const ADMIN_EMAILS = [
   "you2@example.com",
   // add more here
 ];
+
 const WritePage = () => {
-    const { status } = useSession();
-    const { data: session } = useSession();
+    const { data: session, status } = useSession();
     const router = useRouter();
     const searchParams = useSearchParams();
     
@@ -32,17 +33,18 @@ const WritePage = () => {
     const isDraftMode = Boolean(draftId);
     
     // State
-    const [file, setFile] = useState(null)
-    const [media, setMedia] = useState("")
-    const [title, setTitle] = useState("")
+    const [file, setFile] = useState<File | null>(null);
+    const [media, setMedia] = useState("");
+    const [title, setTitle] = useState("");
     const [open, setOpen] = useState(false);
     const [value, setValue] = useState("");
     const [catSlug, setCatSlug] = useState("");
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [isSavingDraft, setIsSavingDraft] = useState(false);
     const [isDataReady, setIsDataReady] = useState(false);
-    const [currentDraftId, setCurrentDraftId] = useState(draftId);
-    
+    const [currentDraftId, setCurrentDraftId] = useState<string | null>(draftId);
+    const [previewUrl, setPreviewUrl] = useState("");
+
     // Fetch post data for editing
     const { data: postData, isLoading: postLoading, error } = useSWR(
         isEditing ? `/api/posts/${editSlug}` : null,
@@ -58,8 +60,7 @@ const WritePage = () => {
     // Populate form when editing a post
     useEffect(() => {
         if (isEditing && postData && !postLoading && session?.user?.email) {
-            // Check if user owns the post
-            if (postData.userEmail !== session?.user?.email) {
+            if (postData.userEmail !== session.user.email) {
                 alert('You are not authorized to edit this post');
                 router.push('/');
                 return;
@@ -69,6 +70,7 @@ const WritePage = () => {
             setValue(postData.desc || '');
             setCatSlug(postData.catSlug || '');
             setMedia(postData.img || '');
+            setPreviewUrl(postData.img || '');
             setIsDataReady(true);
         }
     }, [postData, postLoading, isEditing, session?.user?.email, router]);
@@ -76,8 +78,7 @@ const WritePage = () => {
     // Populate form when editing a draft
     useEffect(() => {
         if (isDraftMode && draftData && !draftLoading && session?.user?.email) {
-            // Check if user owns the draft
-            if (draftData.userEmail !== session?.user?.email) {
+            if (draftData.userEmail !== session.user.email) {
                 alert('You are not authorized to edit this draft');
                 router.push('/');
                 return;
@@ -87,6 +88,7 @@ const WritePage = () => {
             setValue(draftData.content || '');
             setCatSlug(draftData.catSlug || '');
             setMedia(draftData.img || '');
+            setPreviewUrl(draftData.img || '');
             setIsDataReady(true);
         }
     }, [draftData, draftLoading, isDraftMode, session?.user?.email, router]);
@@ -98,24 +100,23 @@ const WritePage = () => {
             setValue('');
             setCatSlug('');
             setMedia('');
+            setPreviewUrl('');
             setIsDataReady(true);
         } else if (isEditing || isDraftMode) {
             setIsDataReady(false);
         }
     }, [isEditing, isDraftMode]);
 
-    // Redirect if unauthenticated
+    // Auth + admin guard
     useEffect(() => {
         if (status === "loading") return;
 
-        // Must be signed in at all
         if (status === "unauthenticated") {
             alert("You must be signed in to access this page.");
             router.push("/");
             return;
         }
 
-        // If admin mode is ON, only allow emails in ADMIN_EMAILS
         if (
             ADMIN_MODE &&
             status === "authenticated" &&
@@ -129,12 +130,15 @@ const WritePage = () => {
 
     // File upload effect
     useEffect(() => {
+        if (!file) return;
+
         const upload = () => {
-            const name = new Date().getTime() + file.name
-            const storageRef = ref(storage, 'images/' + file.name);
+            const name = new Date().getTime() + file.name;
+            const storageRef = ref(storage, 'images/' + name);
             const uploadTask = uploadBytesResumable(storageRef, file);
 
-            uploadTask.on('state_changed',
+            uploadTask.on(
+                'state_changed',
                 (snapshot) => {
                     const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
                     console.log('Upload is ' + progress + '% done');
@@ -161,18 +165,28 @@ const WritePage = () => {
                     }
                 },
                 () => {
-                    // Upload completed successfully, now we can get the download URL
                     getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
-                        setMedia(downloadURL)
+                        setMedia(downloadURL);
+                        setPreviewUrl(downloadURL);
                     });
                 }
             );
         };
-        file && upload()
-    }, [file])
 
-    if (status === "loading" || (isEditing && postLoading) || (isDraftMode && draftLoading) || !isDataReady) {
-        return <div className={styles.loading}>Loading...</div>
+        upload();
+    }, [file]);
+
+    if (
+        status === "loading" ||
+        (ADMIN_MODE &&
+            status === "authenticated" &&
+            session?.user?.email &&
+            !ADMIN_EMAILS.includes(session.user.email)) ||
+        (isEditing && postLoading) ||
+        (isDraftMode && draftLoading) ||
+        !isDataReady
+    ) {
+        return <div className={styles.loading}>Loading...</div>;
     }
 
     if (status !== "authenticated") {
@@ -213,11 +227,11 @@ const WritePage = () => {
                     "Content-Type": "application/json",
                 },
                 body: JSON.stringify({
-                    id: currentDraftId, // Include ID if updating existing draft
+                    id: currentDraftId,
                     title,
                     desc,
                     img: media,
-                    slug: currentDraftId ? undefined : slug, // Don't update slug for existing drafts
+                    slug: currentDraftId ? undefined : slug,
                     catSlug: catSlug || "academics",
                 }),
             });
@@ -226,10 +240,8 @@ const WritePage = () => {
                 const savedDraft = await response.json();
                 alert("Draft saved successfully!");
                 
-                // Update URL to include draft ID for future saves
                 if (!currentDraftId) {
                     setCurrentDraftId(savedDraft.id);
-                    // Update the URL without causing a page reload
                     const newUrl = `/write?draft=${savedDraft.id}`;
                     window.history.replaceState(null, '', newUrl);
                 }
@@ -254,7 +266,6 @@ const WritePage = () => {
         setIsSubmitting(true);
 
         try {
-            // If we're in draft mode, publish the draft
             if (isDraftMode && currentDraftId) {
                 const response = await fetch(`/api/drafts/${currentDraftId}/publish`, {
                     method: 'POST',
@@ -271,7 +282,6 @@ const WritePage = () => {
                 }
             }
 
-            // Regular post creation/editing
             const url = isEditing ? `/api/posts/${editSlug}` : '/api/posts';
             const method = isEditing ? 'PUT' : 'POST';
             
@@ -282,7 +292,6 @@ const WritePage = () => {
                 catSlug: catSlug || "academics",
             };
 
-            // Only add slug for new posts
             if (!isEditing) {
                 body.slug = slugify(title);
             }
@@ -298,7 +307,6 @@ const WritePage = () => {
             if (res.ok) {
                 const result = await res.json();
                 
-                // If this was created from a draft, clean up the draft
                 if (currentDraftId && !isDraftMode) {
                     await fetch(`/api/drafts/${currentDraftId}`, {
                         method: 'DELETE',
@@ -316,7 +324,7 @@ const WritePage = () => {
         } finally {
             setIsSubmitting(false);
         }
-    }
+    };
 
     const handleDelete = async () => {
         if (!isEditing) return;
@@ -341,7 +349,7 @@ const WritePage = () => {
             console.error('Delete error:', error);
             alert('Something went wrong while deleting!');
         }
-    }
+    };
 
     const handleDeleteDraft = async () => {
         if (!currentDraftId) return;
@@ -366,15 +374,13 @@ const WritePage = () => {
             console.error('Delete draft error:', error);
             alert('Something went wrong while deleting!');
         }
-    }
+    };
 
     return (
         <div className={styles.container}>
-            {/* Header indicating mode */}
             {isDraftMode && (
                 <div className={styles.draftHeader}>
                     <span className={styles.draftBadge}>Draft Mode</span>
-                    
                 </div>
             )}
             
@@ -395,7 +401,6 @@ const WritePage = () => {
                 <option value="social">Social</option>
                 <option value="mentalHealth">Mental Health</option>
                 <option value="findYourFocus">Find Your Focus</option>
-                
             </select>
             
             <div className={styles.editor}>
@@ -412,8 +417,16 @@ const WritePage = () => {
                     <div className={styles.add}>
                         <input 
                             type="file" 
-                            id="image" 
-                            onChange={e => setFile(e.target.files[0])} 
+                            id="image"
+                            accept="image/*"
+                            onChange={e => {
+                                const selectedFile = e.target.files?.[0] || null;
+                                if (!selectedFile) return;
+
+                                setFile(selectedFile);
+                                const localUrl = URL.createObjectURL(selectedFile);
+                                setPreviewUrl(localUrl);
+                            }} 
                             style={{ display: "none" }} 
                         />
                         
@@ -441,9 +454,18 @@ const WritePage = () => {
                     />
                 )}
             </div>
+
+            {previewUrl && (
+                <div className={styles.imagePreview}>
+                    <img
+                        src={previewUrl}
+                        alt="Selected image preview"
+                        className={styles.previewImage}
+                    />
+                </div>
+            )}
             
             <div className={styles.buttonContainer}>
-                {/* Draft Save Button - only show when not editing existing post */}
                 {!isEditing && (
                     <button 
                         className={styles.draftButton} 
@@ -455,7 +477,6 @@ const WritePage = () => {
                     </button>
                 )}
                 
-                {/* Main Action Button */}
                 <button 
                     className={styles.publish} 
                     onClick={handleSubmit}
@@ -466,7 +487,6 @@ const WritePage = () => {
                      isDraftMode ? 'Publish Draft' : 'Publish'}
                 </button>
                 
-                {/* Cancel Button */}
                 <button 
                     className={styles.cancelButton} 
                     onClick={() => router.back()}
@@ -476,7 +496,6 @@ const WritePage = () => {
                     Cancel
                 </button>
                 
-                {/* Delete Buttons */}
                 {isEditing && (
                     <button 
                         className={styles.deleteButton} 
@@ -500,7 +519,7 @@ const WritePage = () => {
                 )}
             </div>
         </div>
-    )
-}
+    );
+};
 
-export default WritePage
+export default WritePage;
