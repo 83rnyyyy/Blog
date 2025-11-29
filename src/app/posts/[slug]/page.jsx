@@ -4,21 +4,19 @@ import Menu from "@/components/menu/Menu";
 import Comment from "@/components/comments/Comments";
 
 
-const getData = async (slug) =>{
-    const res = await fetch(`https://www.teenagetheory.com/api/posts/${slug}`,
-        {
-        cache: "no-store",
-        }
-    );
+const getData = async (slug) => {
+  const res = await fetch(`/api/posts/${slug}`, {
+    cache: "no-store",
+  });
 
-    if(!res.ok){
-        const errText = await res.text();
-        console.error("Fetch failed:", res.status, errText);
-        throw new Error("failed")
-    }
+  if (!res.ok) {
+    const errText = await res.text();
+    console.error("Fetch failed:", res.status, errText);
+    throw new Error("failed");
+  }
 
-    return res.json()
-}
+  return res.json();
+};
 
 const SinglePage = async ({params}) =>{
     const {slug} = await params
