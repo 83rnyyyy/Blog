@@ -12,7 +12,13 @@ import useSWR from 'swr';
 
 const storage = getStorage(app);
 const fetcher = (url) => fetch(url).then(res => res.json());
+const ADMIN_MODE = true; // toggle this to enable/disable admin-only lock
 
+const ADMIN_EMAILS = [
+  "bernieliu2@gmail.com",
+  "you2@example.com",
+  // add more here
+];
 const WritePage = () => {
     const { status } = useSession();
     const { data: session } = useSession();
@@ -100,10 +106,26 @@ const WritePage = () => {
 
     // Redirect if unauthenticated
     useEffect(() => {
+        if (status === "loading") return;
+
+        // Must be signed in at all
         if (status === "unauthenticated") {
-            router.push("/")
+            alert("You must be signed in to access this page.");
+            router.push("/");
+            return;
         }
-    }, [status, router])
+
+        // If admin mode is ON, only allow emails in ADMIN_EMAILS
+        if (
+            ADMIN_MODE &&
+            status === "authenticated" &&
+            session?.user?.email &&
+            !ADMIN_EMAILS.includes(session.user.email)
+        ) {
+            alert("You are not authorized to access this page.");
+            router.push("/");
+        }
+    }, [status, session, router]);
 
     // File upload effect
     useEffect(() => {
@@ -196,7 +218,7 @@ const WritePage = () => {
                     desc,
                     img: media,
                     slug: currentDraftId ? undefined : slug, // Don't update slug for existing drafts
-                    catSlug: catSlug || "random",
+                    catSlug: catSlug || "academics",
                 }),
             });
 
