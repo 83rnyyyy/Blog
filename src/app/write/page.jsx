@@ -19,7 +19,6 @@ const ADMIN_EMAILS = [
   "you2@example.com",
   // add more here
 ];
-
 const WritePage = () => {
     const { status } = useSession();
     const { data: session } = useSession();
@@ -33,9 +32,9 @@ const WritePage = () => {
     const isDraftMode = Boolean(draftId);
     
     // State
-    const [file, setFile] = useState(null);
-    const [media, setMedia] = useState("");
-    const [title, setTitle] = useState("");
+    const [file, setFile] = useState(null)
+    const [media, setMedia] = useState("")
+    const [title, setTitle] = useState("")
     const [open, setOpen] = useState(false);
     const [value, setValue] = useState("");
     const [catSlug, setCatSlug] = useState("");
@@ -43,8 +42,7 @@ const WritePage = () => {
     const [isSavingDraft, setIsSavingDraft] = useState(false);
     const [isDataReady, setIsDataReady] = useState(false);
     const [currentDraftId, setCurrentDraftId] = useState(draftId);
-    const [previewUrl, setPreviewUrl] = useState("");   // NEW
-
+    
     // Fetch post data for editing
     const { data: postData, isLoading: postLoading, error } = useSWR(
         isEditing ? `/api/posts/${editSlug}` : null,
@@ -71,7 +69,6 @@ const WritePage = () => {
             setValue(postData.desc || '');
             setCatSlug(postData.catSlug || '');
             setMedia(postData.img || '');
-            setPreviewUrl(postData.img || '');  // show existing image
             setIsDataReady(true);
         }
     }, [postData, postLoading, isEditing, session?.user?.email, router]);
@@ -90,7 +87,6 @@ const WritePage = () => {
             setValue(draftData.content || '');
             setCatSlug(draftData.catSlug || '');
             setMedia(draftData.img || '');
-            setPreviewUrl(draftData.img || ''); // show existing image
             setIsDataReady(true);
         }
     }, [draftData, draftLoading, isDraftMode, session?.user?.email, router]);
@@ -102,14 +98,13 @@ const WritePage = () => {
             setValue('');
             setCatSlug('');
             setMedia('');
-            setPreviewUrl('');
             setIsDataReady(true);
         } else if (isEditing || isDraftMode) {
             setIsDataReady(false);
         }
     }, [isEditing, isDraftMode]);
 
-    // Auth + admin guard
+    // Redirect if unauthenticated
     useEffect(() => {
         if (status === "loading") return;
 
@@ -134,15 +129,12 @@ const WritePage = () => {
 
     // File upload effect
     useEffect(() => {
-        if (!file) return;
-
         const upload = () => {
-            const name = new Date().getTime() + file.name;
-            const storageRef = ref(storage, 'images/' + name);
+            const name = new Date().getTime() + file.name
+            const storageRef = ref(storage, 'images/' + file.name);
             const uploadTask = uploadBytesResumable(storageRef, file);
 
-            uploadTask.on(
-                'state_changed',
+            uploadTask.on('state_changed',
                 (snapshot) => {
                     const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
                     console.log('Upload is ' + progress + '% done');
@@ -171,15 +163,13 @@ const WritePage = () => {
                 () => {
                     // Upload completed successfully, now we can get the download URL
                     getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
-                        setMedia(downloadURL);
-                        setPreviewUrl(downloadURL); // use final URL for preview
+                        setMedia(downloadURL)
                     });
                 }
             );
         };
-
-        upload();
-    }, [file]);
+        file && upload()
+    }, [file])
 
     if (status === "loading" || (isEditing && postLoading) || (isDraftMode && draftLoading) || !isDataReady) {
         return <div className={styles.loading}>Loading...</div>
@@ -239,6 +229,7 @@ const WritePage = () => {
                 // Update URL to include draft ID for future saves
                 if (!currentDraftId) {
                     setCurrentDraftId(savedDraft.id);
+                    // Update the URL without causing a page reload
                     const newUrl = `/write?draft=${savedDraft.id}`;
                     window.history.replaceState(null, '', newUrl);
                 }
@@ -325,7 +316,7 @@ const WritePage = () => {
         } finally {
             setIsSubmitting(false);
         }
-    };
+    }
 
     const handleDelete = async () => {
         if (!isEditing) return;
@@ -350,7 +341,7 @@ const WritePage = () => {
             console.error('Delete error:', error);
             alert('Something went wrong while deleting!');
         }
-    };
+    }
 
     const handleDeleteDraft = async () => {
         if (!currentDraftId) return;
@@ -375,17 +366,18 @@ const WritePage = () => {
             console.error('Delete draft error:', error);
             alert('Something went wrong while deleting!');
         }
-    };
+    }
 
     return (
-        <div className={styles.container}>
-            {/* Header indicating mode */}
+        
+            <div className={styles.container}>
             {isDraftMode && (
                 <div className={styles.draftHeader}>
-                    <span className={styles.draftBadge}>Draft Mode</span>
+                <span className={styles.draftBadge}>Draft Mode</span>
                 </div>
             )}
-            
+
+            {/* Title */}
             <input 
                 type="text" 
                 placeholder="Title" 
@@ -393,7 +385,22 @@ const WritePage = () => {
                 value={title}
                 onChange={e => setTitle(e.target.value)} 
             />
-            
+
+            {/* Image preview: BELOW title, ABOVE writing section */}
+            {previewUrl && (
+                <div className={styles.imagePreview}>
+                <img
+                    src={previewUrl}
+                    alt="Selected image preview"
+                    width={400}
+                    height={400}
+                    style={{ width: 400, height: 400, objectFit: "cover", borderRadius: "8px" }}
+                    className={styles.previewImage}
+                />
+                </div>
+            )}
+
+            {/* Category select (optional: you can move this above/below preview if you want) */}
             <select 
                 className={styles.select} 
                 value={catSlug}
@@ -404,70 +411,62 @@ const WritePage = () => {
                 <option value="mentalHealth">Mental Health</option>
                 <option value="findYourFocus">Find Your Focus</option>
             </select>
-            
+
+            {/* Writing section */}
             <div className={styles.editor}>
                 <button className={styles.button} type="button">
-                    <Image 
-                        src="/plus.png" 
-                        alt="" 
-                        width={16} 
-                        height={16} 
-                        onClick={() => setOpen(!open)} 
-                    />
+                <Image 
+                    src="/plus.png" 
+                    alt="" 
+                    width={16} 
+                    height={16} 
+                    onClick={() => setOpen(!open)} 
+                />
                 </button>
                 {open && (
-                    <div className={styles.add}>
-                        <input 
-                            type="file" 
-                            id="image" 
-                            accept="image/*"
-                            onChange={e => {
-                                const selectedFile = e.target.files && e.target.files[0];
-                                if (!selectedFile) return;
+                <div className={styles.add}>
+                    <input 
+                    type="file" 
+                    id="image" 
+                    accept="image/*"
+                    onChange={e => {
+                        const selectedFile = e.target.files && e.target.files[0];
+                        if (!selectedFile) return;
 
-                                setFile(selectedFile);
+                        setFile(selectedFile);
 
-                                // Local preview immediately
-                                const localUrl = URL.createObjectURL(selectedFile);
-                                setPreviewUrl(localUrl);
-                            }} 
-                            style={{ display: "none" }} 
-                        />
-                        
-                        <button className={styles.addButton} type="button">
-                            <label htmlFor="image">
-                                <Image src="/image.png" alt="" width={16} height={16} />
-                            </label>
-                        </button>
-                        <button className={styles.addButton} type="button">
-                            <Image src="/external.png" alt="" width={16} height={16} />
-                        </button>
-                        <button className={styles.addButton} type="button">
-                            <Image src="/video.png" alt="" width={16} height={16} />
-                        </button>
-                    </div>
+                        const localUrl = URL.createObjectURL(selectedFile);
+                        setPreviewUrl(localUrl);
+                    }} 
+                    style={{ display: "none" }} 
+                    />
+                    
+                    <button className={styles.addButton} type="button">
+                    <label htmlFor="image">
+                        <Image src="/image.png" alt="" width={16} height={16} />
+                    </label>
+                    </button>
+                    <button className={styles.addButton} type="button">
+                    <Image src="/external.png" alt="" width={16} height={16} />
+                    </button>
+                    <button className={styles.addButton} type="button">
+                    <Image src="/video.png" alt="" width={16} height={16} />
+                    </button>
+                </div>
                 )}
                 {isDataReady && (
-                    <ReactQuill 
-                        key={`editor-${isEditing ? editSlug : isDraftMode ? draftId : 'new'}`}
-                        className={styles.textArea} 
-                        theme="bubble" 
-                        value={value} 
-                        onChange={setValue} 
-                        placeholder="Tell your story..." 
-                    />
+                <ReactQuill 
+                    key={`editor-${isEditing ? editSlug : isDraftMode ? draftId : 'new'}`}
+                    className={styles.textArea} 
+                    theme="bubble" 
+                    value={value} 
+                    onChange={setValue} 
+                    placeholder="Tell your story..." 
+                />
                 )}
             </div>
 
-            {previewUrl && (
-                <div className={styles.imagePreview}>
-                    <img
-                        src={previewUrl}
-                        alt="Selected image preview"
-                        className={styles.previewImage}
-                    />
-                </div>
-            )}
+
             
             <div className={styles.buttonContainer}>
                 {/* Draft Save Button - only show when not editing existing post */}
@@ -527,7 +526,7 @@ const WritePage = () => {
                 )}
             </div>
         </div>
-    );
-};
+    )
+}
 
-export default WritePage;
+export default WritePage
