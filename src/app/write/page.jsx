@@ -42,7 +42,7 @@ const WritePage = () => {
     const [isSavingDraft, setIsSavingDraft] = useState(false);
     const [isDataReady, setIsDataReady] = useState(false);
     const [currentDraftId, setCurrentDraftId] = useState(draftId);
-    
+    const [previewUrl, setPreviewUrl] = useState("");
     // Fetch post data for editing
     const { data: postData, isLoading: postLoading, error } = useSWR(
         isEditing ? `/api/posts/${editSlug}` : null,
