@@ -418,7 +418,7 @@ const WritePage = () => {
                 <Image 
                     src="/plus.png" 
                     alt="" 
-                    width={16} 
+                    width={48} 
                     height={16} 
                     onClick={() => setOpen(!open)} 
                 />
