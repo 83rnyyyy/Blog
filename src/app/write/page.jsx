@@ -42,7 +42,7 @@ const WritePage = () => {
     const [isSavingDraft, setIsSavingDraft] = useState(false);
     const [isDataReady, setIsDataReady] = useState(false);
     const [currentDraftId, setCurrentDraftId] = useState(draftId);
-    const [previewUrl, setPreviewUrl] = useState("");
+    
     // Fetch post data for editing
     const { data: postData, isLoading: postLoading, error } = useSWR(
         isEditing ? `/api/posts/${editSlug}` : null,
@@ -369,15 +369,15 @@ const WritePage = () => {
     }
 
     return (
-        
-            <div className={styles.container}>
+        <div className={styles.container}>
+            {/* Header indicating mode */}
             {isDraftMode && (
                 <div className={styles.draftHeader}>
-                <span className={styles.draftBadge}>Draft Mode</span>
+                    <span className={styles.draftBadge}>Draft Mode</span>
+                    
                 </div>
             )}
-
-            {/* Title */}
+            
             <input 
                 type="text" 
                 placeholder="Title" 
@@ -385,22 +385,7 @@ const WritePage = () => {
                 value={title}
                 onChange={e => setTitle(e.target.value)} 
             />
-
-            {/* Image preview: BELOW title, ABOVE writing section */}
-            {previewUrl && (
-                <div className={styles.imagePreview}>
-                <img
-                    src={previewUrl}
-                    alt="Selected image preview"
-                    width={400}
-                    height={400}
-                    style={{ width: 400, height: 400, objectFit: "cover", borderRadius: "8px" }}
-                    className={styles.previewImage}
-                />
-                </div>
-            )}
-
-            {/* Category select (optional: you can move this above/below preview if you want) */}
+            
             <select 
                 className={styles.select} 
                 value={catSlug}
@@ -408,65 +393,55 @@ const WritePage = () => {
             >
                 <option value="academics">Academics</option>
                 <option value="social">Social</option>
+
                 <option value="mentalHealth">Mental Health</option>
                 <option value="findYourFocus">Find Your Focus</option>
+                
             </select>
-
-            {/* Writing section */}
+            
             <div className={styles.editor}>
                 <button className={styles.button} type="button">
-                <Image 
-                    src="/plus.png" 
-                    alt="" 
-                    width={48} 
-                    height={16} 
-                    onClick={() => setOpen(!open)} 
-                />
+                    <Image 
+                        src="/plus.png" 
+                        alt="" 
+                        width={16} 
+                        height={16} 
+                        onClick={() => setOpen(!open)} 
+                    />
                 </button>
                 {open && (
-                <div className={styles.add}>
-                    <input 
-                    type="file" 
-                    id="image" 
-                    accept="image/*"
-                    onChange={e => {
-                        const selectedFile = e.target.files && e.target.files[0];
-                        if (!selectedFile) return;
-
-                        setFile(selectedFile);
-
-                        const localUrl = URL.createObjectURL(selectedFile);
-                        setPreviewUrl(localUrl);
-                    }} 
-                    style={{ display: "none" }} 
-                    />
-                    
-                    <button className={styles.addButton} type="button">
-                    <label htmlFor="image">
-                        <Image src="/image.png" alt="" width={16} height={16} />
-                    </label>
-                    </button>
-                    <button className={styles.addButton} type="button">
-                    <Image src="/external.png" alt="" width={16} height={16} />
-                    </button>
-                    <button className={styles.addButton} type="button">
-                    <Image src="/video.png" alt="" width={16} height={16} />
-                    </button>
-                </div>
+                    <div className={styles.add}>
+                        <input 
+                            type="file" 
+                            id="image" 
+                            onChange={e => setFile(e.target.files[0])} 
+                            style={{ display: "none" }} 
+                        />
+                        
+                        <button className={styles.addButton} type="button">
+                            <label htmlFor="image">
+                                <Image src="/image.png" alt="" width={16} height={16} />
+                            </label>
+                        </button>
+                        <button className={styles.addButton} type="button">
+                            <Image src="/external.png" alt="" width={16} height={16} />
+                        </button>
+                        <button className={styles.addButton} type="button">
+                            <Image src="/video.png" alt="" width={16} height={16} />
+                        </button>
+                    </div>
                 )}
                 {isDataReady && (
-                <ReactQuill 
-                    key={`editor-${isEditing ? editSlug : isDraftMode ? draftId : 'new'}`}
-                    className={styles.textArea} 
-                    theme="bubble" 
-                    value={value} 
-                    onChange={setValue} 
-                    placeholder="Tell your story..." 
-                />
+                    <ReactQuill 
+                        key={`editor-${isEditing ? editSlug : isDraftMode ? draftId : 'new'}`}
+                        className={styles.textArea} 
+                        theme="bubble" 
+                        value={value} 
+                        onChange={setValue} 
+                        placeholder="Tell your story..." 
+                    />
                 )}
             </div>
-
-
             
             <div className={styles.buttonContainer}>
                 {/* Draft Save Button - only show when not editing existing post */}
