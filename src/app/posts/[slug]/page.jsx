@@ -3,35 +3,35 @@ import Image from "next/image";
 import Menu from "@/components/menu/Menu";
 import Comment from "@/components/comments/Comments";
 
-/**
- * Server-side helper to fetch one post by slug.
- * Returns `null` instead of throwing if the fetch fails.
- */
+// Fetch one post by slug from your production API
 const getData = async (slug) => {
   try {
-    // Use a relative URL so this works in dev, preview, and production
-    const res = await fetch(`/api/posts/${slug}`, {
-      cache: "no-store",
-    });
+    const res = await fetch(
+      `https://www.teenagetheory.com/api/posts/${slug}`,
+      {
+        cache: "no-store",
+      }
+    );
 
     if (!res.ok) {
       const errText = await res.text();
       console.error("Fetch failed:", res.status, errText);
-      return null; // <-- do NOT throw, just return null
+      return null; // only null on real error
     }
 
     return res.json();
   } catch (err) {
     console.error("Unexpected error fetching post:", err);
-    return null; // <-- also do not throw here
+    return null;
   }
 };
 
 const SinglePage = async ({ params }) => {
-  const { slug } = params; // no await here
+  const { slug } = params;
   const data = await getData(slug);
 
-  // If API failed or post not found, show a safe fallback instead of crashing
+  // If the API truly failed or slug doesn't exist, show a very simple fallback.
+  // If the API returns real data (which you said it does), this will NOT run.
   if (!data) {
     return (
       <div className={styles.container}>
@@ -48,6 +48,7 @@ const SinglePage = async ({ params }) => {
     );
   }
 
+  // Normal post UI
   return (
     <div className={styles.container}>
       <div className={styles.infoContainer}>
