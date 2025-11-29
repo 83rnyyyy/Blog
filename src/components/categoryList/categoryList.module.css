@@ -27,17 +27,16 @@
 }
 
 .category.academics{
-    background-color: #ffdbd6;
+    background-color: #e3ffdd;
 }
 .category.social{
     background-color: #fff2bd;
 }
 .category.mentalHealth{
-    background-color: #eb2907;
+    background-color: #ffd9f6;
+;
 }
-.category.theTeenageMindset{
-    background-color: #e3ffdd;
-}
+
 .category.findYourFocus{
     background-color: #daf2ff;
 }

@@ -44,27 +44,19 @@
     color:white;
 }
 
-.category.travel{
-    background-color: #ff7857;
-}
-
 .category.academics{
-    background-color: #556dd6;
+    background-color: #e3ffdd;
+}
+.category.social{
+    background-color: #fff2bd;
+}
+.category.mentalHealth{
+    background-color: #ffd9f6;
+;
 }
 
-.category.fashion{
-    background-color: #8cdb04;
-}
-
-.category.sports{
-    background-color: #e61acb;
-}
-
-.category.food{
-    background-color: #076970;
-}
-.category.random{
-    background-color: #520770;
+.category.findYourFocus{
+    background-color: #daf2ff;
 }
 .items{
     margin-top: 35px;

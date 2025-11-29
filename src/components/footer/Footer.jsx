@@ -12,7 +12,7 @@ const Footer = () => {
           <h1 className={styles.logoText}>TeenageTheory</h1>
         </div>
         <p className={styles.desc}>
-          A blog hub where teens can write, read, and connect through real experiences and fresh perspectives.
+          Teenage Theory explores the ups, downs, and everything in between of modern teen life. From school struggles to social dilemmas and mental healthy, it’s a space for a teen perspectives. Read all about the teenage mind in this blog!
         </p>
         <div className={styles.icons}>
           <Image src="/facebook.png" alt="" width={18} height={18} />

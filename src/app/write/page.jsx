@@ -279,7 +279,7 @@ const WritePage = () => {
                 title,
                 desc: value,
                 img: media,
-                catSlug: catSlug || "random",
+                catSlug: catSlug || "academics",
             };
 
             // Only add slug for new posts
@@ -393,7 +393,6 @@ const WritePage = () => {
             >
                 <option value="academics">Academics</option>
                 <option value="social">Social</option>
-                <option value="theTeenageMindset">The Teenage Mindset</option>
                 <option value="mentalHealth">Mental Health</option>
                 <option value="findYourFocus">Find Your Focus</option>
                 
