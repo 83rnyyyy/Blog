@@ -16,7 +16,7 @@ const ADMIN_MODE = true; // toggle this to enable/disable admin-only lock
 
 const ADMIN_EMAILS = [
   "bernieliu2@gmail.com",
-  "you2@example.com",
+  "teenagetheoryblog@gmail.com",
   // add more here
 ];
 const WritePage = () => {
