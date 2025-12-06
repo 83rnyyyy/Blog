@@ -5,24 +5,26 @@ import Comment from "@/components/comments/Comments";
 
 // Fetch one post by slug from your production API
 const getData = async (slug) => {
+  const url = `/api/posts/${slug}`;
+
   try {
-    const res = await fetch(
-      `https://www.teenagetheory.com/api/posts/${slug}`,
-      {
-        cache: "no-store",
-      }
-    );
+    const res = await fetch(url, {
+      cache: "no-store",
+    });
 
     if (!res.ok) {
       const errText = await res.text();
       console.error("Fetch failed:", res.status, errText);
-      return null; // only null on real error
+      // TEMP: throw so you see the real error in dev / logs
+      throw new Error(`Failed to fetch post ${slug}: ${res.status} ${errText}`);
     }
 
     return res.json();
   } catch (err) {
     console.error("Unexpected error fetching post:", err);
-    return null;
+    // You can choose to return null in production if you don't want to crash the page
+    // but while debugging, it's better to throw so you see the error.
+    throw err;
   }
 };
 
