@@ -16,6 +16,9 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       clientSecret: process.env.GITHUB_SECRET,
     })
   ],
+  // ADD THIS:
+  basePath: "/api/auth",
+  trustHost: true, // Important for Next.js 15+
 })
 
 export const { GET, POST } = handlers
