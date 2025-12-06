@@ -2,32 +2,26 @@ import { NextResponse } from "next/server";
 import prisma from "@/utils/connect"
 import { getAuthSession } from "@/utils/auth";
 
-export async function GET(req, { params }) {
-  const { slug } = params;
+export const GET = async (req, {params}) => {
+    const {slug} = await params
 
-  try {
-    const post = await prisma.post.findUnique({
-      where: { slug },
-      include: {
-        user: true,
-      },
-    });
-
-    if (!post) {
-      return NextResponse.json(
-        { message: "Post not found" },
-        { status: 404 }
-      );
+    
+  
+    try{
+        const post = await prisma.post.update({
+            where: {slug },
+            data: {views:{increment:1}},
+            include: {user:true},
+        });
+        
+        
+        return new NextResponse(JSON.stringify(post, {status:200}));
+    }catch(err){
+        console.log(err)
+        return NextResponse(
+            JSON.stringify({ message: "Something went wrong"}, {status:500})
+        );
     }
-
-    return NextResponse.json(post);
-  } catch (err) {
-    console.error("GET /api/posts/[slug] error:", err);
-    return NextResponse.json(
-      { message: "Database Error", error: err.message },
-      { status: 500 }
-    );
-  }
 }
 
 
