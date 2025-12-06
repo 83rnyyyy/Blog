@@ -10,13 +10,13 @@
     "postinstall": "prisma generate"
   },
   "dependencies": {
-    "@auth/prisma-adapter": "^2.10.0",
+    "@auth/prisma-adapter": "^2.11.1",
     "@prisma/client": "^6.13.0",
     "@yarnpkg/pnpify": "^4.1.5",
     "eslint-config-next": "16.0.7",
     "firebase": "^12.1.0",
     "next": "16.0.7",
-    "next-auth": "^4.24.11",
+    "next-auth": "^5.0.0-beta.30",
     "quill-delta": "^5.1.0",
     "react": "19.0.0",
     "react-dom": "19.0.0",
