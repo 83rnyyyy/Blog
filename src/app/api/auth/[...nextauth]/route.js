@@ -19,6 +19,15 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
   // ADD THIS:
   basePath: "/api/auth",
   trustHost: true, // Important for Next.js 15+
+  callbacks: {
+    async session({ session, user }) {
+      if (session.user) {
+        session.user.email = user.email;
+        session.user.id = user.id;
+      }
+      return session;
+    },
+  },
 })
 
 export const { GET, POST } = handlers
