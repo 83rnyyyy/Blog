@@ -9,6 +9,7 @@
     flex: 1;
     height: 300px;
     position: relative;
+    overflow: hidden;
 }
 
 .textContainer{
@@ -19,6 +20,8 @@
 }
 
 .image{
+    width: 100%; /* fill container width */
+    height: 100%; /* fill container height */
     object-fit: cover;
 }
 
