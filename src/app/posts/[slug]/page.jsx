@@ -6,18 +6,17 @@ import prisma from "@/utils/connect";
 
 export const dynamic = "force-dynamic";
 
-// Fetch one post by slug directly from the database
+// Fetch post directly from database
 const getData = async (slug) => {
   try {
     const post = await prisma.post.update({
       where: { slug },
-      data: { views: { increment: 1 } }, // same as your API: increment views
+      data: { views: { increment: 1 } },
       include: { user: true },
     });
-
-    return post; // this is your `data`
+    return post;
   } catch (err) {
-    console.error("Error loading post in SinglePage:", err);
+    console.error("Error fetching post:", err);
     return null;
   }
 };
@@ -26,14 +25,15 @@ const SinglePage = async ({ params }) => {
   const { slug } = params;
   const data = await getData(slug);
 
+  // If the post doesn't exist, show fallback
   if (!data) {
     return (
       <div className={styles.container}>
         <div className={styles.infoContainer}>
           <div className={styles.textContainer}>
             <h1 className={styles.title}>Post not found</h1>
-            <p>
-              We couldn’t find this article. It may have been deleted or the URL
+            <p className={styles.description}>
+              We couldn't find this article. It may have been deleted or the URL
               may be incorrect.
             </p>
           </div>
@@ -42,6 +42,7 @@ const SinglePage = async ({ params }) => {
     );
   }
 
+  // Normal post UI
   return (
     <div className={styles.container}>
       <div className={styles.infoContainer}>
@@ -64,13 +65,13 @@ const SinglePage = async ({ params }) => {
               <span className={styles.date}>1.01.2025</span>
             </div>
           </div>
-
-          {data?.img && (
-            <div className={styles.imageContainer}>
-              <Image src={data.img} alt="" fill className={styles.image} />
-            </div>
-          )}
         </div>
+
+        {data?.img && (
+          <div className={styles.imageContainer}>
+            <Image src={data.img} alt="" fill className={styles.image} />
+          </div>
+        )}
       </div>
 
       <div className={styles.content}>
