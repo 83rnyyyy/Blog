@@ -27,6 +27,10 @@ export async function DELETE(req, { params }) {
     const { slug } = params;
     const session = await getAuthSession();
 
+    console.log("API DELETE - Full session:", session);
+    console.log("API DELETE - User:", session?.user);
+    console.log("API DELETE - Email:", session?.user?.email);
+
     if (!session) {
       return NextResponse.json(
         { message: "Not authenticated" },

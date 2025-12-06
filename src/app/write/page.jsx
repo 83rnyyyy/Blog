@@ -42,7 +42,11 @@ const WritePage = () => {
     const [isSavingDraft, setIsSavingDraft] = useState(false);
     const [isDataReady, setIsDataReady] = useState(false);
     const [currentDraftId, setCurrentDraftId] = useState(draftId);
-    
+    useEffect(() => {
+        console.log("Full session object:", session);
+        console.log("Session user:", session?.user);
+        console.log("Session email:", session?.user?.email);
+    }, [session]);
     // Fetch post data for editing
     const { data: postData, isLoading: postLoading, error } = useSWR(
         isEditing ? `/api/posts/${editSlug}` : null,
