@@ -22,7 +22,7 @@
      padding-bottom: 100%; for 1:1 (square)
   */
   overflow: hidden;
-  border-radius: 8px; /* optional, for rounded corners */
+  
 }
 
 .image {
