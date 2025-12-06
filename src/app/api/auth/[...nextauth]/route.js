@@ -20,11 +20,22 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
   basePath: "/api/auth",
   trustHost: true,
   session: {
-    strategy: "database", // Use database sessions with adapter
+    strategy: "database",
+  },
+  // ADD THIS:
+  cookies: {
+    sessionToken: {
+      name: `__Secure-next-auth.session-token`,
+      options: {
+        httpOnly: true,
+        sameSite: 'lax',
+        path: '/',
+        secure: true, // true in production
+      },
+    },
   },
   callbacks: {
     async session({ session, user }) {
-      // Make sure user data is available in the session
       if (user) {
         session.user.id = user.id;
         session.user.email = user.email;
