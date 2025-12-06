@@ -3,7 +3,7 @@ import prisma from "@/utils/connect";
 import { getAuthSession } from "@/utils/auth";
 
 export async function GET(req, { params }) {
-  const { slug } = params;
+  const { slug } = await params;
 
   try {
     const post = await prisma.post.update({
@@ -24,7 +24,7 @@ export async function GET(req, { params }) {
 
 export async function DELETE(req, { params }) {
   try {
-    const { slug } = params;
+    const { slug } = await params;
     const session = await getAuthSession();
 
     console.log("API DELETE - Full session:", session);
