@@ -1,3 +1,4 @@
+// app/api/auth/[...nextauth]/route.js
 import NextAuth from "next-auth"
 import GithubProvider from "next-auth/providers/github"
 import GoogleProvider from "next-auth/providers/google"
@@ -16,14 +17,19 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       clientSecret: process.env.GITHUB_SECRET,
     })
   ],
-  // ADD THIS:
   basePath: "/api/auth",
-  trustHost: true, // Important for Next.js 15+
+  trustHost: true,
+  session: {
+    strategy: "database", // Use database sessions with adapter
+  },
   callbacks: {
     async session({ session, user }) {
-      if (session.user) {
-        session.user.email = user.email;
+      // Make sure user data is available in the session
+      if (user) {
         session.user.id = user.id;
+        session.user.email = user.email;
+        session.user.name = user.name;
+        session.user.image = user.image;
       }
       return session;
     },
