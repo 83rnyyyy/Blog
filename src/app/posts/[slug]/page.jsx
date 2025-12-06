@@ -39,8 +39,8 @@ const SinglePage = async ({ params }) => {
           <div className={styles.textContainer}>
             <h1 className={styles.title}>Post not found</h1>
             <p className={styles.description}>
-              We couldn't find this article. It may have been deleted or the URL
-              may be incorrect.
+              not workings
+              
             </p>
           </div>
         </div>
