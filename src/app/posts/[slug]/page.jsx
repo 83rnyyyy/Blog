@@ -2,26 +2,22 @@ import styles from "./singlePage.module.css";
 import Image from "next/image";
 import Menu from "@/components/menu/Menu";
 import Comment from "@/components/comments/Comments";
+import prisma from "@/utils/connect";
+
 export const dynamic = "force-dynamic";
-// Fetch one post by slug from your production API
+
+// Fetch one post by slug directly from the database
 const getData = async (slug) => {
   try {
-    const res = await fetch(
-      `/api/posts/${slug}`,
-      {
-        cache: "no-store",
-      }
-    );
+    const post = await prisma.post.update({
+      where: { slug },
+      data: { views: { increment: 1 } }, // same as your API: increment views
+      include: { user: true },
+    });
 
-    if (!res.ok) {
-      const errText = await res.text();
-      console.error("Fetch failed:", res.status, errText);
-      return null; // only null on real error
-    }
-
-    return res.json();
+    return post; // this is your `data`
   } catch (err) {
-    console.error("Unexpected error fetching post:", err);
+    console.error("Error loading post in SinglePage:", err);
     return null;
   }
 };
@@ -30,8 +26,6 @@ const SinglePage = async ({ params }) => {
   const { slug } = params;
   const data = await getData(slug);
 
-  // If the API truly failed or slug doesn't exist, show a very simple fallback.
-  // If the API returns real data (which you said it does), this will NOT run.
   if (!data) {
     return (
       <div className={styles.container}>
@@ -48,7 +42,6 @@ const SinglePage = async ({ params }) => {
     );
   }
 
-  // Normal post UI
   return (
     <div className={styles.container}>
       <div className={styles.infoContainer}>
