@@ -9,14 +9,20 @@ export const dynamic = "force-dynamic";
 // Fetch post directly from database
 const getData = async (slug) => {
   try {
+    console.log("🔍 Looking for post with slug:", slug);
+    
     const post = await prisma.post.update({
       where: { slug },
       data: { views: { increment: 1 } },
       include: { user: true },
     });
+    
+    console.log("✅ Post found:", post);
     return post;
   } catch (err) {
-    console.error("Error fetching post:", err);
+    console.error("❌ Error fetching post:", err);
+    console.error("Error code:", err.code);
+    console.error("Error message:", err.message);
     return null;
   }
 };
