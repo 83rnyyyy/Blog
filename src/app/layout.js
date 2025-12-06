@@ -10,7 +10,7 @@ import AuthProvider from '@/providers/AuthProvider';
 const inter = Inter({ subsets: ['latin'] })
 
 export const metadata = {
-  title: 'Teenage Theory',
+  title: 'Teenage theory',
   description: 'The best blog app!',
   icons: {
     icon: '/tt_logo.ico',
