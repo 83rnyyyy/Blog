@@ -13,7 +13,7 @@ export const metadata = {
   title: 'Teenage Theory',
   description: 'The best blog app!',
   icons: {
-    icon: '/favicon.ico',
+    icon: '/favicon.png',
   },
 }
 
