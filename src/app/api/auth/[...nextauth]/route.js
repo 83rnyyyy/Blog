@@ -22,18 +22,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
   session: {
     strategy: "database",
   },
-  // ADD THIS:
-  cookies: {
-    sessionToken: {
-      name: `__Secure-next-auth.session-token`,
-      options: {
-        httpOnly: true,
-        sameSite: 'lax',
-        path: '/',
-        secure: true, // true in production
-      },
-    },
-  },
+  // REMOVE the cookies config - let it use defaults
   callbacks: {
     async session({ session, user }) {
       if (user) {
