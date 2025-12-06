@@ -2,12 +2,12 @@ import styles from "./singlePage.module.css";
 import Image from "next/image";
 import Menu from "@/components/menu/Menu";
 import Comment from "@/components/comments/Comments";
-
+export const dynamic = "force-dynamic";
 // Fetch one post by slug from your production API
 const getData = async (slug) => {
   try {
     const res = await fetch(
-      `https://www.teenagetheory.com/api/posts/${slug}`,
+      `/api/posts/${slug}`,
       {
         cache: "no-store",
       }
