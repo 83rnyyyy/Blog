@@ -6,7 +6,7 @@ import Footer from "@/components/footer/Footer";
 import { ThemeContextProvider } from '@/context/ThemeContext';
 import ThemeProvider from '@/providers/ThemeProvider';
 import AuthProvider from '@/providers/AuthProvider';
-
+import { Analytics } from "@vercel/analytics/next"
 const inter = Inter({ subsets: ['latin'] })
 
 export const metadata = {
@@ -21,6 +21,7 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en">
       <body className={inter.className}>
+        
         <AuthProvider>
           <ThemeContextProvider>
             <ThemeProvider>
@@ -34,6 +35,7 @@ export default function RootLayout({ children }) {
             </ThemeProvider>
           </ThemeContextProvider>
         </AuthProvider>
+        <Analytics/>
       </body>
     </html>
   )
