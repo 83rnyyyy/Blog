@@ -30,7 +30,6 @@ const Navbar = () => {
                 <div className={styles.links}>
                     <ThemeToggle/>
                     <Link href="/" className={styles.link}>Homepage</Link>
-                    <Link href="/" className={styles.link}>Contact</Link>
                     {status === "authenticated" && session?.user?.email && (
                         <Link href={`/user/${session.user.email}`} className={styles.link}>
                             Profile
