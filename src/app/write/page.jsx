@@ -12,16 +12,15 @@ import useSWR from 'swr';
 
 const storage = getStorage(app);
 const fetcher = (url) => fetch(url).then(res => res.json());
-const ADMIN_MODE = true; // toggle this to enable/disable admin-only lock
+const ADMIN_MODE = true; 
 
 const ADMIN_EMAILS = [
   "bernieliu2@gmail.com",
   "teenagetheoryblog@gmail.com",
-  // add more here
 ];
+
 const WritePage = () => {
-    const { status } = useSession();
-    const { data: session } = useSession();
+    const { status, data: session } = useSession();
     const router = useRouter();
     const searchParams = useSearchParams();
     
@@ -37,18 +36,15 @@ const WritePage = () => {
     const [title, setTitle] = useState("")
     const [open, setOpen] = useState(false);
     const [value, setValue] = useState("");
-    const [catSlug, setCatSlug] = useState("");
+    const [catSlug, setCatSlug] = useState("academics");
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [isSavingDraft, setIsSavingDraft] = useState(false);
     const [isDataReady, setIsDataReady] = useState(false);
+    const [uploading, setUploading] = useState(false); // New: Track upload progress
     const [currentDraftId, setCurrentDraftId] = useState(draftId);
-    useEffect(() => {
-        console.log("Full session object:", session);
-        console.log("Session user:", session?.user);
-        console.log("Session email:", session?.user?.email);
-    }, [session]);
+
     // Fetch post data for editing
-    const { data: postData, isLoading: postLoading, error } = useSWR(
+    const { data: postData, isLoading: postLoading } = useSWR(
         isEditing ? `/api/posts/${editSlug}` : null,
         fetcher
     );
@@ -59,74 +55,36 @@ const WritePage = () => {
         fetcher
     );
     
-    // Populate form when editing a post
+    // Populate form logic
     useEffect(() => {
-        if (isEditing && postData && !postLoading && session?.user?.email) {
-            // Check if user owns the post
+        if (isEditing && postData && session?.user?.email) {
             if (postData.userEmail !== session?.user?.email) {
-                alert('You are not authorized to edit this post');
                 router.push('/');
                 return;
             }
-            
             setTitle(postData.title || '');
             setValue(postData.desc || '');
-            setCatSlug(postData.catSlug || '');
+            setCatSlug(postData.catSlug || 'academics');
             setMedia(postData.img || '');
             setIsDataReady(true);
-        }
-    }, [postData, postLoading, isEditing, session?.user?.email, router]);
-
-    // Populate form when editing a draft
-    useEffect(() => {
-        if (isDraftMode && draftData && !draftLoading && session?.user?.email) {
-            // Check if user owns the draft
-            if (draftData.userEmail !== session?.user?.email) {
-                alert('You are not authorized to edit this draft');
+        } else if (isDraftMode && draftData && session?.user?.email) {
+             if (draftData.userEmail !== session?.user?.email) {
                 router.push('/');
                 return;
             }
-            
             setTitle(draftData.title || '');
             setValue(draftData.content || '');
-            setCatSlug(draftData.catSlug || '');
+            setCatSlug(draftData.catSlug || 'academics');
             setMedia(draftData.img || '');
             setIsDataReady(true);
-        }
-    }, [draftData, draftLoading, isDraftMode, session?.user?.email, router]);
-
-    // Reset form when creating new content
-    useEffect(() => {
-        if (!isEditing && !isDraftMode) {
-            setTitle('');
-            setValue('');
-            setCatSlug('');
-            setMedia('');
+        } else if (!isEditing && !isDraftMode) {
             setIsDataReady(true);
-        } else if (isEditing || isDraftMode) {
-            setIsDataReady(false);
         }
-    }, [isEditing, isDraftMode]);
+    }, [postData, draftData, isEditing, isDraftMode, session, router]);
 
-    // Redirect if unauthenticated
+    // Auth Guard
     useEffect(() => {
-        if (status === "loading") return;
-
-        // Must be signed in at all
-        if (status === "unauthenticated") {
-            alert("You must be signed in to access this page.");
-            router.push("/");
-            return;
-        }
-
-        // If admin mode is ON, only allow emails in ADMIN_EMAILS
-        if (
-            ADMIN_MODE &&
-            status === "authenticated" &&
-            session?.user?.email &&
-            !ADMIN_EMAILS.includes(session.user.email)
-        ) {
-            alert("You are not authorized to access this page.");
+        if (status === "unauthenticated" || (ADMIN_MODE && status === "authenticated" && !ADMIN_EMAILS.includes(session?.user?.email))) {
             router.push("/");
         }
     }, [status, session, router]);
@@ -134,183 +92,110 @@ const WritePage = () => {
     // File upload effect
     useEffect(() => {
         const upload = () => {
-            const name = new Date().getTime() + file.name
-            const storageRef = ref(storage, 'images/' + file.name);
+            setUploading(true);
+            const name = new Date().getTime() + "_" + file.name;
+            const storageRef = ref(storage, 'images/' + name);
             const uploadTask = uploadBytesResumable(storageRef, file);
 
             uploadTask.on('state_changed',
                 (snapshot) => {
                     const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
                     console.log('Upload is ' + progress + '% done');
-                    switch (snapshot.state) {
-                        case 'paused':
-                            console.log('Upload is paused');
-                            break;
-                        case 'running':
-                            console.log('Upload is running');
-                            break;
-                    }
                 },
                 (error) => {
-                    switch (error.code) {
-                        case 'storage/unauthorized':
-                            console.log('Storage unauthorized');
-                            break;
-                        case 'storage/canceled':
-                            console.log('Storage canceled');
-                            break;
-                        case 'storage/unknown':
-                            console.log('Unknown storage error');
-                            break;
-                    }
+                    console.error("Upload error:", error);
+                    setUploading(false);
                 },
                 () => {
-                    // Upload completed successfully, now we can get the download URL
                     getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
-                        setMedia(downloadURL)
+                        setMedia(downloadURL);
+                        setUploading(false);
                     });
                 }
             );
         };
-        file && upload()
-    }, [file])
-
-    if (status === "loading" || (isEditing && postLoading) || (isDraftMode && draftLoading) || !isDataReady) {
-        return <div className={styles.loading}>Loading...</div>
-    }
-
-    if (status !== "authenticated") {
-        return null;
-    }
+        file && upload();
+    }, [file]);
 
     const slugify = (str) =>
-        str
-            .toLowerCase()
-            .trim()
+        str.toLowerCase().trim()
             .replace(/[^\w\s-]/g, "")
             .replace(/[\s_-]+/g, "-")
             .replace(/^-+|-+$/g, "");
 
-    const generateSlug = (title) => {
-        return title
-            .toLowerCase()
-            .replace(/[^\w\s-]/g, '')
-            .replace(/\s+/g, '-')
-            .trim();
-    };
-
+    // SAVE DRAFT FUNCTION
     const saveDraft = async () => {
         if (!title.trim()) {
             alert("Please add a title before saving as draft");
             return;
         }
-
         setIsSavingDraft(true);
-
         try {
-            const slug = generateSlug(title);
-            const desc = value.replace(/<[^>]*>/g, '').slice(0, 200);
-
-            const response = await fetch("/api/drafts", {
+            const res = await fetch("/api/drafts", {
                 method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
+                headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
-                    id: currentDraftId, // Include ID if updating existing draft
+                    id: currentDraftId,
                     title,
-                    desc,
+                    desc: value.replace(/<[^>]*>/g, '').slice(0, 200),
                     img: media,
-                    slug: currentDraftId ? undefined : slug, // Don't update slug for existing drafts
                     catSlug: catSlug || "academics",
                 }),
             });
-
-            if (response.ok) {
-                const savedDraft = await response.json();
-                alert("Draft saved successfully!");
-                
-                // Update URL to include draft ID for future saves
-                if (!currentDraftId) {
-                    setCurrentDraftId(savedDraft.id);
-                    // Update the URL without causing a page reload
-                    const newUrl = `/write?draft=${savedDraft.id}`;
-                    window.history.replaceState(null, '', newUrl);
-                }
-            } else {
-                const error = await response.json();
-                alert(`Failed to save draft: ${error.message}`);
+            if (res.ok) {
+                const saved = await res.json();
+                setCurrentDraftId(saved.id);
+                if (!currentDraftId) window.history.replaceState(null, '', `/write?draft=${saved.id}`);
+                return saved;
             }
-        } catch (error) {
-            console.error("Save draft error:", error);
-            alert("Failed to save draft. Please try again.");
+        } catch (err) {
+            console.error(err);
         } finally {
             setIsSavingDraft(false);
         }
     };
 
+    // SUBMIT / UPDATE FUNCTION
     const handleSubmit = async () => {
         if (!title || !value) {
             alert('Please fill in title and content');
             return;
         }
-
         setIsSubmitting(true);
 
         try {
-            await saveDraft();
-
-            // If we're in draft mode, publish the draft
+            // Case 1: Publishing a Draft
             if (isDraftMode && currentDraftId) {
-                const response = await fetch(`/api/drafts/${currentDraftId}/publish`, {
-                    method: 'POST',
-                });
-
-                if (response.ok) {
-                    const post = await response.json();
+                const res = await fetch(`/api/drafts/${currentDraftId}/publish`, { method: 'POST' });
+                if (res.ok) {
+                    const post = await res.json();
                     router.push(`/posts/${post.slug}`);
-                    return;
-                } else {
-                    const error = await response.json();
-                    alert(`Failed to publish draft: ${error.message}`);
                     return;
                 }
             }
 
-            // Regular post creation/editing
+            // Case 2: Creating new or Updating existing post
             const url = isEditing ? `/api/posts/${editSlug}` : '/api/posts';
             const method = isEditing ? 'PUT' : 'POST';
             
-            const body = {
-                title,
-                desc: value,
-                img: media,
-                catSlug: catSlug || "academics",
-            };
-
-            // Only add slug for new posts
-            if (!isEditing) {
-                body.slug = slugify(title);
-            }
-
             const res = await fetch(url, {
                 method: method,
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(body)
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    title,
+                    desc: value,
+                    img: media,
+                    catSlug: catSlug || "academics",
+                    ...( !isEditing && { slug: slugify(title) })
+                })
             });
 
             if (res.ok) {
                 const result = await res.json();
-                
-                // If this was created from a draft, clean up the draft
+                // Clean up draft if it existed
                 if (currentDraftId && !isDraftMode) {
-                    await fetch(`/api/drafts/${currentDraftId}`, {
-                        method: 'DELETE',
-                    });
+                    await fetch(`/api/drafts/${currentDraftId}`, { method: 'DELETE' });
                 }
-                
                 router.push(`/posts/${result.slug || editSlug}`);
             } else {
                 const error = await res.json();
@@ -318,71 +203,24 @@ const WritePage = () => {
             }
         } catch (error) {
             console.error('Submit error:', error);
-            alert('Something went wrong!');
         } finally {
             setIsSubmitting(false);
         }
     }
 
+    // DELETE LOGIC
     const handleDelete = async () => {
-        if (!isEditing) return;
-        
-        if (!confirm('Are you sure you want to delete this post? This action cannot be undone.')) {
-            return;
-        }
-
-        try {
-            const res = await fetch(`/api/posts/${editSlug}`, {
-                method: 'DELETE',
-            });
-
-            if (res.ok) {
-                alert('Post deleted successfully');
-                router.push('/');
-            } else {
-                const error = await res.json();
-                alert(`Error: ${error.message || 'Failed to delete post'}`);
-            }
-        } catch (error) {
-            console.error('Delete error:', error);
-            alert('Something went wrong while deleting!');
-        }
+        if (!confirm('Are you sure?')) return;
+        const url = isEditing ? `/api/posts/${editSlug}` : `/api/drafts/${currentDraftId}`;
+        const res = await fetch(url, { method: 'DELETE' });
+        if (res.ok) router.push('/');
     }
 
-    const handleDeleteDraft = async () => {
-        if (!currentDraftId) return;
-        
-        if (!confirm('Are you sure you want to delete this draft? This action cannot be undone.')) {
-            return;
-        }
-
-        try {
-            const res = await fetch(`/api/drafts/${currentDraftId}`, {
-                method: 'DELETE',
-            });
-
-            if (res.ok) {
-                alert('Draft deleted successfully');
-                router.push('/');
-            } else {
-                const error = await res.json();
-                alert(`Error: ${error.message || 'Failed to delete draft'}`);
-            }
-        } catch (error) {
-            console.error('Delete draft error:', error);
-            alert('Something went wrong while deleting!');
-        }
-    }
+    if (status === "loading" || !isDataReady) return <div className={styles.loading}>Loading...</div>
 
     return (
         <div className={styles.container}>
-            {/* Header indicating mode */}
-            {isDraftMode && (
-                <div className={styles.draftHeader}>
-                    <span className={styles.draftBadge}>Draft Mode</span>
-                    
-                </div>
-            )}
+            {isDraftMode && <div className={styles.draftHeader}><span className={styles.draftBadge}>Draft Mode</span></div>}
             
             <input 
                 type="text" 
@@ -392,122 +230,58 @@ const WritePage = () => {
                 onChange={e => setTitle(e.target.value)} 
             />
             
-            <select 
-                className={styles.select} 
-                value={catSlug}
-                onChange={(e) => setCatSlug(e.target.value)}
-            >
+            <select className={styles.select} value={catSlug} onChange={(e) => setCatSlug(e.target.value)}>
                 <option value="academics">Academics</option>
                 <option value="social">Social</option>
-
                 <option value="mentalHealth">Mental Health</option>
                 <option value="findYourFocus">Find Your Focus</option>
-                
             </select>
             
             <div className={styles.editor}>
-                <button className={styles.button} type="button">
-                    <Image 
-                        src="/plus.png" 
-                        alt="" 
-                        width={16} 
-                        height={16} 
-                        onClick={() => setOpen(!open)} 
-                    />
+                <button className={styles.button} type="button" onClick={() => setOpen(!open)}>
+                    <Image src="/plus.png" alt="" width={16} height={16} />
                 </button>
                 {open && (
                     <div className={styles.add}>
-                        <input 
-                            type="file" 
-                            id="image" 
-                            onChange={e => setFile(e.target.files[0])} 
-                            style={{ display: "none" }} 
-                        />
-                        
+                        <input type="file" id="image" onChange={e => setFile(e.target.files[0])} style={{ display: "none" }} />
                         <button className={styles.addButton} type="button">
                             <label htmlFor="image">
                                 <Image src="/image.png" alt="" width={16} height={16} />
                             </label>
                         </button>
-                        <button className={styles.addButton} type="button">
-                            <Image src="/external.png" alt="" width={16} height={16} />
-                        </button>
-                        <button className={styles.addButton} type="button">
-                            <Image src="/video.png" alt="" width={16} height={16} />
-                        </button>
                     </div>
                 )}
-                {isDataReady && (
-                    <ReactQuill 
-                        key={`editor-${isEditing ? editSlug : isDraftMode ? draftId : 'new'}`}
-                        className={styles.textArea} 
-                        theme="bubble" 
-                        value={value} 
-                        onChange={setValue} 
-                        placeholder="Tell your story..." 
-                    />
-                )}
+                {uploading && <p className={styles.uploadingText}>Image uploading...</p>}
+                
+                <ReactQuill 
+                    key={`editor-${isEditing ? editSlug : (isDraftMode ? draftId : 'new')}`}
+                    className={styles.textArea} 
+                    theme="bubble" 
+                    value={value} 
+                    onChange={setValue} 
+                    placeholder="Tell your story..." 
+                />
             </div>
             
             <div className={styles.buttonContainer}>
-                {/* Draft Save Button - only show when not editing existing post */}
                 {!isEditing && (
-                    <button 
-                        className={styles.draftButton} 
-                        onClick={saveDraft}
-                        disabled={isSavingDraft || isSubmitting}
-                        type="button"
-                    >
-                        {isSavingDraft ? 'Saving Draft...' : 'Save as Draft'}
+                    <button className={styles.draftButton} onClick={saveDraft} disabled={isSavingDraft || isSubmitting || uploading}>
+                        {isSavingDraft ? 'Saving...' : 'Save as Draft'}
                     </button>
                 )}
                 
-                {/* Main Action Button */}
-                <button 
-                    className={styles.publish} 
-                    onClick={handleSubmit}
-                    disabled={isSubmitting || isSavingDraft}
-                >
-                    {isSubmitting ? 'Publishing...' : 
-                     isEditing ? 'Update Post' : 
-                     isDraftMode ? 'Publish Draft' : 'Publish'}
+                <button className={styles.publish} onClick={handleSubmit} disabled={isSubmitting || isSavingDraft || uploading}>
+                    {isSubmitting ? 'Publishing...' : isEditing ? 'Update Post' : 'Publish'}
                 </button>
                 
-                {/* Cancel Button */}
-                <button 
-                    className={styles.cancelButton} 
-                    onClick={() => router.back()}
-                    type="button"
-                    disabled={isSubmitting || isSavingDraft}
-                >
-                    Cancel
-                </button>
+                <button className={styles.cancelButton} onClick={() => router.back()}>Cancel</button>
                 
-                {/* Delete Buttons */}
-                {isEditing && (
-                    <button 
-                        className={styles.deleteButton} 
-                        onClick={handleDelete}
-                        type="button"
-                        disabled={isSubmitting || isSavingDraft}
-                    >
-                        Delete Post
-                    </button>
-                )}
-                
-                {isDraftMode && (
-                    <button 
-                        className={styles.deleteButton} 
-                        onClick={handleDeleteDraft}
-                        type="button"
-                        disabled={isSubmitting || isSavingDraft}
-                    >
-                        Delete Draft
-                    </button>
+                {(isEditing || isDraftMode) && (
+                    <button className={styles.deleteButton} onClick={handleDelete}>Delete</button>
                 )}
             </div>
         </div>
     )
 }
 
-export default WritePage
+export default WritePage;
