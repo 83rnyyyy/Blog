@@ -88,7 +88,7 @@ const WritePage = () => {
             }
             
             setTitle(draftData.title || '');
-            setValue(draftData.content || '');
+            setValue(draftData.desc || '');
             setCatSlug(draftData.catSlug || '');
             setMedia(draftData.img || '');
             setIsDataReady(true);
