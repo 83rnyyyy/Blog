@@ -175,7 +175,12 @@ const WritePage = () => {
         file && upload()
     }, [file])
 
-    if (status === "loading" || (isEditing && postLoading) || (isDraftMode && draftLoading) || !isDataReady) {
+    if (
+        status === "loading" || 
+        (isEditing && postLoading) || 
+        (isDraftMode && draftLoading && !draftData) || 
+        !isDataReady
+    ) {
         return <div className={styles.loading}>Loading...</div>
     }
 
@@ -234,8 +239,7 @@ const WritePage = () => {
                 if (!currentDraftId) {
                     setCurrentDraftId(savedDraft.id);
                     
-                    const newUrl = `/write?draft=${savedDraft.id}`;
-                    window.history.replaceState(null, '', newUrl);
+                    router.replace(`/write?draft=${savedDraft.id}`, { scroll: false });
                     setIsDataReady(true);
                 }
             } else {
