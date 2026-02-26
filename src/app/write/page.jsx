@@ -236,6 +236,7 @@ const WritePage = () => {
                     
                     const newUrl = `/write?draft=${savedDraft.id}`;
                     window.history.replaceState(null, '', newUrl);
+                    setIsDataReady(true);
                 }
             } else {
                 const error = await response.json();
