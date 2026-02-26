@@ -219,7 +219,7 @@ const WritePage = () => {
                 body: JSON.stringify({
                     id: currentDraftId, // Include ID if updating existing draft
                     title,
-                    desc,
+                    desc: value,
                     img: media,
                     slug: currentDraftId ? undefined : slug, 
                     catSlug: catSlug || "academics",
