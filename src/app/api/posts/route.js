@@ -23,7 +23,10 @@ export const GET = async (req) => {
             take: POST_PER_PAGE,
             skip: POST_PER_PAGE * (validPage - 1),
             where: {
-                ...(cat && {catSlug: cat}),
+                ...(cat && { catSlug: cat }),
+            },
+            orderBy: {
+                createdAt: "desc",
             },
         };
         
